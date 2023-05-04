@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import com.example.springProject.entities.Category;
 import com.example.springProject.entities.Order;
 import com.example.springProject.entities.OrderItem;
+import com.example.springProject.entities.Payment;
 import com.example.springProject.entities.Product;
 import com.example.springProject.entities.User;
 import com.example.springProject.entities.enums.OrderStatus;
@@ -24,6 +25,7 @@ import com.example.springProject.repositories.UserRepository;
 @Profile("test")
 public class TestConfig implements CommandLineRunner {
 
+	
 	@Autowired
 	private UserRepository userRepository;
 	
@@ -43,20 +45,25 @@ public class TestConfig implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		
 		
+		
+		//Instantiating categories and products
+		//Categories
 		Category cat1 = new Category(null, "Electronics");
 		Category cat2 = new Category(null, "Books");
 		Category cat3 = new Category(null, "Computers"); 
 		
+		//Products
 		Product p1 = new Product(null, "The Lord of the Rings", "Lorem ipsum dolor sit amet, consectetur.", 90.5, "");
 		Product p2 = new Product(null, "Smart TV", "Nulla eu imperdiet purus. Maecenas ante.", 2190.0, "");
 		Product p3 = new Product(null, "Macbook Pro", "Nam eleifend maximus tortor, at mollis.", 1250.0, "");
 		Product p4 = new Product(null, "PC Gamer", "Donec aliquet odio ac rhoncus cursus.", 1200.0, "");
 		Product p5 = new Product(null, "Rails for Dummies", "Cras fringilla convallis sem vel faucibus.", 100.99, ""); 
 		
+		//Saving both in the database using categoryRepository and productRepository
 		categoryRepository.saveAll(Arrays.asList(cat1, cat2, cat3));
-		
 		productRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5)); 
 		
+		//Adding the product's category
 		p1.getCategories().add(cat2);
 		p2.getCategories().add(cat1);
 		p2.getCategories().add(cat3);
@@ -64,26 +71,37 @@ public class TestConfig implements CommandLineRunner {
 		p4.getCategories().add(cat3);
 		p5.getCategories().add(cat2);
 		
+		//Saving products in the database with the respective category
 		productRepository.saveAll(Arrays.asList(p1, p2, p3, p4, p5)); 
 		
+		//Instantiating users and orders
+		//Users
 		User u1 = new User(null, "Lebron James", "lebron@goat.com", "988888888", "123456");
 		User u2 = new User(null, "Don Toliver", "don@lovesick.com", "977777777", "123456");
 
-		Order o1 = new Order(null, Instant.parse("2023-04-29T19:53:07Z"), OrderStatus.DELIVERED, u1);
+		Order o1 = new Order(null, Instant.parse("2023-04-29T19:53:07Z"), OrderStatus.PAID, u1);
 		Order o2 = new Order(null, Instant.parse("2023-05-01T03:42:10Z"), OrderStatus.WAITING_PAYMENT, u2);
 		Order o3 = new Order(null, Instant.parse("2023-04-25T15:21:22Z"), OrderStatus.SHIPPED, u1); 
 		
+		//Saving both in the database
 		userRepository.saveAll(Arrays.asList(u1, u2));
-		
 		orderRepository.saveAll(Arrays.asList(o1, o2, o3));
 		
+		//Instantiating a orderItem object
 		OrderItem oi1 = new OrderItem(o1, p1, 2, p1.getPrice());
 		OrderItem oi2 = new OrderItem(o1, p3, 1, p3.getPrice());
 		OrderItem oi3 = new OrderItem(o2, p3, 2, p3.getPrice());
 		OrderItem oi4 = new OrderItem(o3, p5, 2, p5.getPrice());
 		
+		//Saving in the database
 		orderItemRepository.saveAll(Arrays.asList(oi1, oi2, oi3, oi4)); 
 		
+		//Instantiating a payment object
+		Payment pay1 = new Payment(null, Instant.parse("2023-04-29T21:53:07Z"), o1);
+		
+		////Saving in the database
+		o1.setPayment(pay1);
+		orderRepository.save(o1);
 	} 
 	
 }
